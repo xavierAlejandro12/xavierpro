@@ -1,0 +1,30 @@
+#!/bin/sh
+
+gpio -g mode 19 in
+gpio -g mode 26 out
+
+while true; do
+
+	if [ $(gpio -g read 19) = "0" ]; then
+		echo "Power up"
+
+		gpio -g write 26 0
+		gpio -g write 26 1
+		sleep 2
+		gpio -g write 26 0
+		sleep 2
+	else
+		NCHECK='ifconfig ppp'
+		NCHECK1='echo $NCHECK | cut -d " " -f 1'
+
+		if [ "$NCHECK1" = "ppp0" ]; then
+			echo "Connection up, reconnect not required..."
+		exit 0
+		else
+			echo "Connection down, reconnecting..."
+			sudo pon
+		fi
+	fi
+
+	sleep 1
+done
